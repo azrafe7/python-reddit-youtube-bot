@@ -15,6 +15,7 @@ import config.auth as auth
 import config.settings as settings
 
 import pdb
+import datetime as dt
 
 storymode = False
 
@@ -285,25 +286,35 @@ def download_screenshots_of_reddit_posts(
                     
                     def set_inner_html(selector, inner_html=''):
                         el = page.locator(selector)
+                        # Escape inner_html
+                        #TODO: probably more cases are to be handled
+                        escaped_inner_html = inner_html.replace("\n", "\\n").replace('"', '\\"').replace("'", "\\'")
                         try: 
+                            print(f'  inner_html: "{inner_html}"')
+                            print(f'  escaped_inner_html: "{escaped_inner_html}"')
                             if el.count() == 1:
-                                el = el.first.evaluate(f"(el) => el.innerHTML = '{inner_html}';")
+                                evaluate_context_data = escaped_inner_html
+                                js = f"el => el.innerHTML = \'{escaped_inner_html}\';"
+                                print(f"  js: {js}")
+                                # el.first.evaluate(f'() => console.log(\'{js}\');', evaluate_context_data)
+                                el.first.evaluate(js, evaluate_context_data)
                             else:
-                                print(f"[set_inner_html] not found or not unique selector found ('{selector}')!")
+                                print(f"  [set_inner_html] not found or not unique selector found ('{selector}')!")
                                 breakpoint()
-                        except:
-                            print("Evaluate breakpoint()")
+                        except Exception as e:
+                            print(f"  Evaluate breakpoint() error: {e}")
                             breakpoint()
+                            raise
                         
                     # breakpoint()
                     
                     # Fill template fields
-                    set_inner_html('#author', comment.author)
+                    set_inner_html('#author', comment.author.name)
                     set_inner_html('#id', comment.id)
-                    set_inner_html('#body', comment.body)
-                    set_inner_html('#score', comment.score)
+                    set_inner_html('#score', str(comment.score))
                     set_inner_html('#avatar', comment.author.icon_img)
-                    set_inner_html('#date', comment.created)
+                    set_inner_html('#date', dt.date.fromtimestamp(comment.created).strftime("%A, %d. %B %Y %I:%M%p"))
+                    set_inner_html('#body_html', comment.body_html)
                     
                     entry_element = page.locator('#comment-container').first
                     

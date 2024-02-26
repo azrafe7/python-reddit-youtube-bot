@@ -151,7 +151,7 @@ newcaster_size = (video_width * 0.5, video_height * 0.5)
 threads = 4
 
 # Whether to launch the Browser in Headless mode
-headless_browser = True  # defaults to True, but can set it to False to see what happens
+headless_browser = False  # defaults to True, but can set it to False to see what happens
 
 if platform == "linux" or platform == "linux2":
     firefox_binary = "/opt/firefox/firefox"
