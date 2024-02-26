@@ -309,10 +309,10 @@ def download_screenshots_of_reddit_posts(
                     # breakpoint()
                     
                     # Fill template fields
-                    set_inner_html('#author', comment.author.name)
+                    set_inner_html('#author', comment.author.name if comment.author else '[unknown]')
                     set_inner_html('#id', comment.id)
                     set_inner_html('#score', str(comment.score))
-                    set_inner_html('#avatar', comment.author.icon_img)
+                    set_inner_html('#avatar', comment.author.icon_img if comment.author else '[unknown]')
                     set_inner_html('#date', dt.date.fromtimestamp(comment.created).strftime("%A, %d. %B %Y %I:%M%p"))
                     set_inner_html('#body_html', comment.body_html)
                     
