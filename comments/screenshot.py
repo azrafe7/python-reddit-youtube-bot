@@ -201,6 +201,14 @@ def download_screenshots_of_reddit_posts(
                     comment_excerpt = get_comment_excerpt(comment)
                     print(f"[{_idx + 1}/{len(accepted_comments)} {comment.id}] {comment.author}: {comment_excerpt}")
 
+                    # random template
+                    # import random
+                    # choice = random.choice(list(zip(["example", "old_reddit_mockup", "dark_reddit_mockup", "light_reddit_mockup"], ["none", "old_reddit", "new_reddit", "new_reddit"])))
+                    # template_url = str(Path("comment_templates", choice[0]))
+                    # template_abbreviated_style = choice[1]
+                    # env = Environment(loader=FileSystemLoader(template_url))
+                    # template = env.get_template('index.html')
+
                     # Fill template fields and update page
                     values = {
                         'author': comment.author.name if comment.author else '[unknown]',
@@ -214,15 +222,39 @@ def download_screenshots_of_reddit_posts(
                     # Render the template with variables
                     output = template.render(values)
 
-                    # # Save the rendered output to a file
+                    # Save the rendered output to a file
                     # print("Jinja Comment Output :")
                     # print(output)
                     # with open(f"{video_directory}/comment_{comment.id}.html", "w", encoding="utf-8") as output_file:
-                    #     output_file.write(output)
+                        # output_file.write(output)
 
                     # Option 1: Pass HTML content
                     page.set_content(output)
 
+                    # Replace Reddit preview-image links with the actual images
+                    reddit_preview_links = page.locator('a[href^="https://preview.redd.it"]')
+                    if reddit_preview_links.count() > 0:
+                        reddit_preview_links_regex = re.compile(r'(<a href="(https://preview.redd.it/[^"]+)".+?(?=<\/a>)<\/a>)')
+                        
+                        content_with_images = page.content()
+                        for c in range(reddit_preview_links.count()):
+                            link_loc = reddit_preview_links.nth(c).first
+                            href = link_loc.get_attribute('href')
+                            img_width = "100%"
+                            width_match = re.search('\?width=(\d+)', href)
+                            if width_match and len(width_match.groups()) == 1:
+                                img_width = width_match.group(1) + 'px'
+                            img = f'<img class="from_preview_link" src="{href}" width="{img_width}" height="100%" style="min-width:20px; max-width:240px; border-radius:4px;"></img>'
+                            img_wrapper = f'<div style="display:flex">{img}</div>'
+                            content_with_images = reddit_preview_links_regex.sub(img_wrapper, content_with_images, count=1)
+                        
+                        page.set_content(content_with_images)
+                        
+                        # Save the rendered output to a file
+                        # with open(f"{video_directory}/comment_{comment.id}_w_images.html", "w", encoding="utf-8") as output_file:
+                            # output_file.write(content_with_images)
+
+                        
                     page.locator('#comment-container').screenshot(path=str(comment_path.resolve()))
                     #browser.close()
 
