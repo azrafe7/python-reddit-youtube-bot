@@ -457,11 +457,11 @@ def create(video_directory: Path, post: Submission, thumbnails: List[Path]) -> N
                 rejected_comments.append(c)
                 continue
 
-            markdown_image_regex = r'!\[.*\]\(.*\)'
-            if re.search(markdown_image_regex, comment):
-                logging.info("Status : REJECTED, Markdown Image : %s", comment)
-                rejected_comments.append(c)
-                continue
+            # markdown_image_regex = r'!\[.*\]\(.*\)'
+            # if re.search(markdown_image_regex, comment):
+                # logging.info("Status : REJECTED, Markdown Image : %s", comment)
+                # rejected_comments.append(c)
+                # continue
     
             if "covid" in comment.lower() or "vaccine" in comment.lower():
                 logging.info(
